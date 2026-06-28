@@ -37,12 +37,12 @@ Thank You.
 function buildSalaryMessage(data: Record<string, string | number>, employeeName: string): string {
   return `Hello ${employeeName}
 
-Salary Summary for ${data.month}
+Your Salary for ${data.month} ${data.year} has been generated.
 
-Attendance: ${data.attendance}
-Gross Salary: ₹${data.gross}
-Advance Deducted: ₹${data.advance}
-Final Salary: ₹${data.final}
+Attendance: ${data.attendanceCount}
+Gross Salary: ₹${data.grossSalary}
+Advances Deducted: ₹${data.advances}
+Net Final Salary: ₹${data.netSalary}
 
 Thank You.
 — VivekBhai Industries`;

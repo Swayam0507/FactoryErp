@@ -46,7 +46,7 @@ export function useWhatsApp() {
     } else if (payload.type === 'advance') {
       message = `Hello ${employeeName},\n\nAn advance payment of Rs. ${data.amount} has been recorded.\nMode: ${data.mode}\nReason: ${data.reason}\n\nThank you,\nVivekBhai Industries`;
     } else if (payload.type === 'salary') {
-      message = `Hello ${employeeName},\n\nYour Salary for ${data.month}/${data.year} has been generated.\n\nAttendance: ${data.attendanceCount}\nGross Salary: Rs. ${data.grossSalary}\nAdvances Deducted: Rs. ${data.advances}\n*Net Final Salary: Rs. ${data.netSalary}*\n\nThank you,\nVivekBhai Industries`;
+      message = `Hello ${employeeName},\n\nYour Salary for ${data.month} ${data.year} has been generated.\n\nAttendance: ${data.attendanceCount}\nGross Salary: Rs. ${data.grossSalary}\nAdvances Deducted: Rs. ${data.advances}\n*Net Final Salary: Rs. ${data.netSalary}*\n\nThank you,\nVivekBhai Industries`;
     }
 
     // Format number for wa.me (remove spaces/pluses, ensure country code)
