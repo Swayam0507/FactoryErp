@@ -244,12 +244,12 @@ export default function SalaryPage() {
                         <p className="font-medium text-slate-800 dark:text-slate-200">{(r as SalaryReport & { employee: Employee }).employee?.full_name}</p>
                         <p className="text-xs font-mono text-slate-400">{(r as SalaryReport & { employee: Employee }).employee?.employee_code}</p>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-300">{r.total_attendance}</td>
-                      <td className="px-4 py-3 text-right text-slate-500 hidden sm:table-cell">{formatCurrency(r.rate)}</td>
-                      <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-300">{formatCurrency(r.gross_salary)}</td>
-                      <td className="px-4 py-3 text-right text-rose-500 hidden lg:table-cell">-{formatCurrency(r.advance_cash || 0)}</td>
-                      <td className="px-4 py-3 text-right text-rose-500 hidden lg:table-cell">-{formatCurrency(r.advance_rtgs || 0)}</td>
-                      <td className="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(r.final_salary)}</td>
+                      <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{r.total_attendance}</td>
+                      <td className="px-4 py-3 text-right text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatCurrency(r.rate)}</td>
+                      <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-300 whitespace-nowrap">{formatCurrency(r.gross_salary)}</td>
+                      <td className="px-4 py-3 text-right text-rose-500 hidden lg:table-cell whitespace-nowrap">-{formatCurrency(r.advance_cash || 0)}</td>
+                      <td className="px-4 py-3 text-right text-rose-500 hidden lg:table-cell whitespace-nowrap">-{formatCurrency(r.advance_rtgs || 0)}</td>
+                      <td className="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">{formatCurrency(r.final_salary)}</td>
                       <td className="px-4 py-3 text-center">
                         <div className="inline-flex items-center gap-1">
                           <button
@@ -276,10 +276,10 @@ export default function SalaryPage() {
                 <tfoot>
                   <tr className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
                     <td colSpan={4} className="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 text-sm">TOTAL ({reports.length} employees)</td>
-                    <td className="px-4 py-3 text-right font-bold text-slate-800 dark:text-slate-100">{formatCurrency(totalGross)}</td>
-                    <td className="px-4 py-3 text-right font-bold text-rose-600 hidden lg:table-cell">-{formatCurrency(reports.reduce((s, r) => s + (r.advance_cash || 0), 0))}</td>
-                    <td className="px-4 py-3 text-right font-bold text-rose-600 hidden lg:table-cell">-{formatCurrency(reports.reduce((s, r) => s + (r.advance_rtgs || 0), 0))}</td>
-                    <td className="px-4 py-3 text-right font-bold text-emerald-600">{formatCurrency(totalFinal)}</td>
+                    <td className="px-4 py-3 text-right font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">{formatCurrency(totalGross)}</td>
+                    <td className="px-4 py-3 text-right font-bold text-rose-600 hidden lg:table-cell whitespace-nowrap">-{formatCurrency(reports.reduce((s, r) => s + (r.advance_cash || 0), 0))}</td>
+                    <td className="px-4 py-3 text-right font-bold text-rose-600 hidden lg:table-cell whitespace-nowrap">-{formatCurrency(reports.reduce((s, r) => s + (r.advance_rtgs || 0), 0))}</td>
+                    <td className="px-4 py-3 text-right font-bold text-emerald-600 whitespace-nowrap">{formatCurrency(totalFinal)}</td>
                     <td />
                   </tr>
                 </tfoot>
