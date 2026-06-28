@@ -60,11 +60,12 @@ export default function SalaryPage() {
                 employeeName: emp.full_name,
                 mobileNumber: emp.mobile_number,
                 data: {
-                  month: monthLabel,
-                  attendance: r.total_attendance,
-                  gross: r.gross_salary.toFixed(2),
-                  advance: r.advance_amount.toFixed(2),
-                  final: r.final_salary.toFixed(2),
+                  month: MONTHS.find(m => m.value === month)?.label ?? monthLabel,
+                  year: String(year),
+                  attendanceCount: r.total_attendance,
+                  grossSalary: r.gross_salary.toFixed(2),
+                  advances: r.advance_amount.toFixed(2),
+                  netSalary: r.final_salary.toFixed(2),
                 },
               }, false).then(success => { if (success) sentCount++; });
             } catch {}
@@ -87,11 +88,12 @@ export default function SalaryPage() {
         employeeName: emp.full_name,
         mobileNumber: emp.mobile_number,
         data: {
-          month: formatMonthYear(month, year),
-          attendance: r.total_attendance,
-          gross: r.gross_salary.toFixed(2),
-          advance: r.advance_amount.toFixed(2),
-          final: r.final_salary.toFixed(2),
+          month: MONTHS.find(m => m.value === month)?.label ?? formatMonthYear(month, year),
+          year: String(year),
+          attendanceCount: r.total_attendance,
+          grossSalary: r.gross_salary.toFixed(2),
+          advances: r.advance_amount.toFixed(2),
+          netSalary: r.final_salary.toFixed(2),
         },
       });
     } catch { toast.error('WhatsApp send failed'); }
