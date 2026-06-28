@@ -1,24 +1,22 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+/* Force light mode: override Tailwind v4 default media-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  /* ERP Brand Colors */
-  --color-erp-blue: #1E3A8A;
-  --color-erp-blue-light: #2563EB;
-  --color-erp-green: #10B981;
-  --color-erp-green-dark: #059669;
-  --color-erp-sidebar: #0F1F4A;
-  --color-erp-sidebar-dark: #080F26;
+@theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Premium ERP Brand Colors */
+  --color-erp-primary: #4F46E5;
+  --color-erp-primary-hover: #4338CA;
+  --color-erp-accent: #8B5CF6;
+
+  --color-erp-sidebar: #18181B;
 }
 
 @layer base {
   *, *::before, *::after {
-    border-color: theme(colors.slate.200);
-  }
-
-  .dark *, .dark *::before, .dark *::after {
-    border-color: theme(colors.slate.800);
+    border-color: theme(colors.zinc.200);
   }
 
   html {
@@ -26,61 +24,59 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  body {
-    background-color: theme(colors.slate.50);
-    color: theme(colors.slate.900);
-    font-family: var(--font-sans);
-  }
-
-  .dark body {
-    background-color: theme(colors.slate.950);
-    color: theme(colors.slate.100);
-  }
 }
 
 @layer components {
   /* ── Sidebar ─────────────────────────────── */
   .sidebar-bg {
-    background-color: var(--color-erp-sidebar);
+    background: linear-gradient(180deg, #18181B 0%, #1e1b4b 100%);
   }
 
-  .dark .sidebar-bg {
-    background-color: var(--color-erp-sidebar-dark);
+  /* ── Glass Topbar ────────────────────────── */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  /* ── Premium Cards ───────────────────────── */
+  .glass-card {
+    background: #ffffff;
+    border: 1px solid theme(colors.zinc.200);
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.04),
+      0 4px 24px rgba(0, 0, 0, 0.03);
+    transition: all 300ms ease;
+  }
+
+  .glass-card:hover {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.06),
+      0 8px 32px rgba(0, 0, 0, 0.04);
   }
 
   /* ── Table row hover ─────────────────────── */
   .table-row-hover {
-    transition: background-color 150ms ease;
+    transition: all 200ms ease;
   }
 
   .table-row-hover:hover {
-    background-color: theme(colors.blue.50 / 40%);
-  }
-
-  .dark .table-row-hover:hover {
-    background-color: theme(colors.blue.950 / 30%);
+    background-color: theme(colors.indigo.50 / 50%);
   }
 
   /* ── Status badges ───────────────────────── */
   .badge-active {
-    background-color: theme(colors.emerald.100);
+    background-color: theme(colors.emerald.50);
     color: theme(colors.emerald.700);
-  }
-
-  .dark .badge-active {
-    background-color: theme(colors.emerald.950 / 40%);
-    color: theme(colors.emerald.400);
+    border: 1px solid theme(colors.emerald.200);
   }
 
   .badge-inactive {
-    background-color: theme(colors.slate.100);
-    color: theme(colors.slate.500);
-  }
-
-  .dark .badge-inactive {
-    background-color: theme(colors.slate.800);
-    color: theme(colors.slate.400);
+    background-color: theme(colors.zinc.50);
+    color: theme(colors.zinc.500);
+    border: 1px solid theme(colors.zinc.200);
   }
 }
 
@@ -94,29 +90,19 @@
   .skeleton-shimmer {
     background: linear-gradient(
       90deg,
-      theme(colors.slate.100) 25%,
-      theme(colors.slate.200) 50%,
-      theme(colors.slate.100) 75%
+      theme(colors.zinc.100) 25%,
+      theme(colors.zinc.200) 50%,
+      theme(colors.zinc.100) 75%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    border-radius: 0.375rem;
-  }
-
-  .dark .skeleton-shimmer {
-    background: linear-gradient(
-      90deg,
-      theme(colors.slate.800) 25%,
-      theme(colors.slate.700) 50%,
-      theme(colors.slate.800) 75%
-    );
-    background-size: 200% 100%;
+    border-radius: 0.75rem;
   }
 
   /* ── Thin scrollbar ───────────────────────── */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: theme(colors.slate.300) transparent;
+    scrollbar-color: theme(colors.zinc.300) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -129,12 +115,8 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: theme(colors.slate.300);
+    background-color: theme(colors.zinc.300);
     border-radius: 2px;
-  }
-
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: theme(colors.slate.600);
   }
 
   /* ── Focus rings ─────────────────────────── */
@@ -144,7 +126,7 @@
   }
 
   .focus-ring:focus-visible {
-    outline-color: theme(colors.blue.600);
+    outline-color: theme(colors.indigo.600);
   }
 }
 

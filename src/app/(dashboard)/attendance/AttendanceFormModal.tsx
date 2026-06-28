@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { attendanceSchema, type AttendanceFormValues } from '@/lib/validations/attendance';
 import { useAuth } from '@/hooks/useAuth';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
+import { useAttendance } from '@/hooks/useAttendance';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { todayStr, getCurrentMonthYear, getMonthRange } from '@/lib/utils';
@@ -20,6 +22,7 @@ interface Props {
 
 export default function AttendanceFormModal({ editRecord, employees, onClose, onSuccess }: Props) {
   const { user } = useAuth();
+  const { sendNotification } = useWhatsApp();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
 
@@ -83,24 +86,18 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
           const currentSalary = monthlyAttendance * emp.rate_per_attendance;
           const payable = Math.max(0, currentSalary - totalAdvance);
 
-          await fetch('/api/whatsapp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type: 'attendance',
-              employeeName: emp.full_name,
-              mobileNumber: emp.mobile_number,
-              data: {
-                todayAttendance: data.attendance_count,
-                monthlyAttendance,
-                currentSalary: currentSalary.toFixed(2),
-                advance: totalAdvance.toFixed(2),
-                payable: payable.toFixed(2),
-              },
-            }),
-          }).then(res => {
-            if (res.ok) toast.success(`WhatsApp sent to ${emp.full_name}`);
-          }).catch(() => {});
+          await sendNotification({
+            type: 'attendance',
+            employeeName: emp.full_name,
+            mobileNumber: emp.mobile_number,
+            data: {
+              todayAttendance: data.attendance_count,
+              monthlyAttendance,
+              currentSalary: currentSalary.toFixed(2),
+              advance: totalAdvance.toFixed(2),
+              payable: payable.toFixed(2),
+            },
+          });
         } catch {}
       }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAttendance } from '@/hooks/useAttendance';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useAuth } from '@/hooks/useAuth';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate, todayStr, getMonthRange, getCurrentMonthYear } from '@/lib/utils';
 import {
@@ -38,6 +39,7 @@ export default function AttendancePage() {
 
   const { employees } = useEmployees(false);
   const { canWrite } = useAuth();
+  const { sendNotification } = useWhatsApp();
 
   const filtered = useMemo(() => {
     if (!search) return records;
@@ -75,24 +77,18 @@ export default function AttendancePage() {
       const currentSalary = monthlyAttendance * emp.rate_per_attendance;
       const payable = Math.max(0, currentSalary - totalAdvance);
 
-      const res = await fetch('/api/whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'attendance',
-          employeeName: emp.full_name,
-          mobileNumber: emp.mobile_number,
-          data: {
-            todayAttendance: rec.attendance_count,
-            monthlyAttendance,
-            currentSalary: currentSalary.toFixed(2),
-            advance: totalAdvance.toFixed(2),
-            payable: payable.toFixed(2),
-          },
-        }),
+      await sendNotification({
+        type: 'attendance',
+        employeeName: emp.full_name,
+        mobileNumber: emp.mobile_number,
+        data: {
+          todayAttendance: rec.attendance_count,
+          monthlyAttendance,
+          currentSalary: currentSalary.toFixed(2),
+          advance: totalAdvance.toFixed(2),
+          payable: payable.toFixed(2),
+        },
       });
-      if (res.ok) toast.success(`WhatsApp sent to ${emp.full_name}`);
-      else toast.error('WhatsApp send failed');
     } catch { toast.error('WhatsApp send failed'); }
   };
 

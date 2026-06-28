@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const font = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'VivekBhai Industries — Factory ERP',
@@ -19,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${font.variable} font-sans antialiased bg-zinc-50 text-zinc-900`}>
         {children}
         <Toaster
           position="top-right"

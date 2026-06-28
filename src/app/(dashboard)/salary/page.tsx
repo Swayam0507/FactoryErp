@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSalary } from '@/hooks/useSalary';
 import { useAuth } from '@/hooks/useAuth';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 import { formatCurrency, formatMonthYear, MONTHS, getYearOptions, getCurrentMonthYear } from '@/lib/utils';
 import { exportSalaryToExcel } from '@/lib/excel/exporters';
 import { createClient } from '@/lib/supabase/client';
@@ -17,6 +18,7 @@ export default function SalaryPage() {
   const supabase = createClient();
   const { reports, loading, fetchReports, generateMonthlyReport } = useSalary();
   const { user, canWrite } = useAuth();
+  const { sendNotification } = useWhatsApp();
 
   const { month: curMonth, year: curYear } = getCurrentMonthYear();
   const [month, setMonth] = useState(curMonth);
@@ -53,22 +55,18 @@ export default function SalaryPage() {
           const emp = (r as SalaryReport & { employee: Employee }).employee;
           if (emp?.mobile_number) {
             try {
-              await fetch('/api/whatsapp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  type: 'salary',
-                  employeeName: emp.full_name,
-                  mobileNumber: emp.mobile_number,
-                  data: {
-                    month: monthLabel,
-                    attendance: r.total_attendance,
-                    gross: r.gross_salary.toFixed(2),
-                    advance: r.advance_amount.toFixed(2),
-                    final: r.final_salary.toFixed(2),
-                  },
-                }),
-              }).then(res => { if (res.ok) sentCount++; });
+              await sendNotification({
+                type: 'salary',
+                employeeName: emp.full_name,
+                mobileNumber: emp.mobile_number,
+                data: {
+                  month: monthLabel,
+                  attendance: r.total_attendance,
+                  gross: r.gross_salary.toFixed(2),
+                  advance: r.advance_amount.toFixed(2),
+                  final: r.final_salary.toFixed(2),
+                },
+              }, false).then(success => { if (success) sentCount++; });
             } catch {}
           }
         }
@@ -84,24 +82,18 @@ export default function SalaryPage() {
     const emp = r.employee;
     if (!emp?.mobile_number) { toast.error('No mobile number'); return; }
     try {
-      const res = await fetch('/api/whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'salary',
-          employeeName: emp.full_name,
-          mobileNumber: emp.mobile_number,
-          data: {
-            month: formatMonthYear(month, year),
-            attendance: r.total_attendance,
-            gross: r.gross_salary.toFixed(2),
-            advance: r.advance_amount.toFixed(2),
-            final: r.final_salary.toFixed(2),
-          },
-        }),
+      await sendNotification({
+        type: 'salary',
+        employeeName: emp.full_name,
+        mobileNumber: emp.mobile_number,
+        data: {
+          month: formatMonthYear(month, year),
+          attendance: r.total_attendance,
+          gross: r.gross_salary.toFixed(2),
+          advance: r.advance_amount.toFixed(2),
+          final: r.final_salary.toFixed(2),
+        },
       });
-      if (res.ok) toast.success(`WhatsApp sent to ${emp.full_name}`);
-      else toast.error('WhatsApp send failed');
     } catch { toast.error('WhatsApp send failed'); }
   };
 

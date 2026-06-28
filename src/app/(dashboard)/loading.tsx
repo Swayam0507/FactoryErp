@@ -10,7 +10,7 @@ export default function DashboardLoading() {
       {/* KPI cards skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-28">
+          <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 h-28">
             <div className="flex items-start justify-between">
               <div className="space-y-2 flex-1">
                 <div className="h-3 w-24 rounded skeleton-shimmer" />
@@ -25,14 +25,14 @@ export default function DashboardLoading() {
 
       {/* Charts skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-64 skeleton-shimmer" />
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-64 skeleton-shimmer" />
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 h-64 skeleton-shimmer" />
+        <div className="bg-white rounded-xl border border-slate-200 p-5 h-64 skeleton-shimmer" />
       </div>
 
       {/* Feed skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-64 skeleton-shimmer" />
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-64 skeleton-shimmer" />
+        <div className="bg-white rounded-xl border border-slate-200 p-5 h-64 skeleton-shimmer" />
+        <div className="bg-white rounded-xl border border-slate-200 p-5 h-64 skeleton-shimmer" />
       </div>
     </div>
   );

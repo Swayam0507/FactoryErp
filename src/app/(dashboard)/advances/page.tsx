@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useAdvances } from '@/hooks/useAdvances';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useAuth } from '@/hooks/useAuth';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 import { formatDate, formatCurrency, getCurrentMonthYear, getMonthRange } from '@/lib/utils';
 import {
   Plus, Search, Download, Pencil, Trash2,
@@ -39,6 +40,7 @@ export default function AdvancesPage() {
 
   const { employees } = useEmployees(false);
   const { canWrite, user } = useAuth();
+  const { sendNotification } = useWhatsApp();
   const supabase = createClient();
 
   // Manual WhatsApp resend for advances
@@ -54,19 +56,15 @@ export default function AdvancesPage() {
       const gross = monthlyAtt * adv.employee.rate_per_attendance;
       const payable = Math.max(0, gross - totalAdv);
 
-      const res = await fetch('/api/whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'advance',
-          employeeName: adv.employee.full_name,
-          mobileNumber: adv.employee.mobile_number,
-          data: { amount: adv.amount.toFixed(2), date: adv.payment_date, payable: payable.toFixed(2) },
-        }),
+      await sendNotification({
+        type: 'advance',
+        employeeName: adv.employee.full_name,
+        mobileNumber: adv.employee.mobile_number,
+        data: { amount: adv.amount.toFixed(2), date: adv.payment_date, payable: payable.toFixed(2) },
       });
-      if (res.ok) toast.success(`WhatsApp sent to ${adv.employee.full_name}`);
-      else toast.error('WhatsApp send failed');
-    } catch { toast.error('WhatsApp send failed'); }
+    } catch {
+      toast.error('WhatsApp send failed');
+    }
   };
 
   const filtered = useMemo(() => {
@@ -228,6 +226,7 @@ export default function AdvancesPage() {
           onSuccess={() => { setShowForm(false); setEditRecord(null); refetch(); }}
           addAdvance={addAdvance}
           updateAdvance={updateAdvance}
+          sendNotification={sendNotification}
         />
       )}
     </div>
@@ -243,9 +242,10 @@ interface ModalProps {
   onSuccess: () => void;
   addAdvance: (p: { employee_id: string; amount: number; payment_mode: 'CASH'|'RTGS'; reason: string; payment_date: string; created_by: string }) => Promise<unknown>;
   updateAdvance: (id: string, p: Partial<AdvancePayment>) => Promise<void>;
+  sendNotification: (payload: any, showToast?: boolean) => Promise<boolean>;
 }
 
-function AdvanceModal({ editRecord, employees, userId, onClose, onSuccess, addAdvance, updateAdvance }: ModalProps) {
+function AdvanceModal({ editRecord, employees, userId, onClose, onSuccess, addAdvance, updateAdvance, sendNotification }: ModalProps) {
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<AdvanceFormValues>({
@@ -283,18 +283,12 @@ function AdvanceModal({ editRecord, employees, userId, onClose, onSuccess, addAd
             const gross = monthlyAtt * emp.rate_per_attendance;
             const payable = Math.max(0, gross - totalAdv);
 
-            await fetch('/api/whatsapp', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                type: 'advance',
-                employeeName: emp.full_name,
-                mobileNumber: emp.mobile_number,
-                data: { amount: data.amount.toFixed(2), date: data.payment_date, payable: payable.toFixed(2) },
-              }),
-            }).then(res => {
-              if (res.ok) toast.success(`WhatsApp sent to ${emp.full_name}`);
-            }).catch(() => {});
+            await sendNotification({
+              type: 'advance',
+              employeeName: emp.full_name,
+              mobileNumber: emp.mobile_number,
+              data: { amount: data.amount.toFixed(2), date: data.payment_date, payable: payable.toFixed(2) },
+            });
           } catch {}
         }
       }

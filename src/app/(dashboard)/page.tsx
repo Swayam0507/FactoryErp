@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { formatCurrency, formatDate, getCurrentMonthYear, getMonthRange } from '@/lib/utils';
 import {
   Users, CalendarCheck, TrendingUp, IndianRupee,
-  AlertCircle, ArrowUpRight
+  AlertCircle, ArrowUpRight, Wallet
 } from 'lucide-react';
 import type { Employee, Attendance, AdvancePayment } from '@/types';
 
@@ -20,8 +20,8 @@ const LazyLineChart = dynamic(() => import('recharts').then(m => {
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} />
         <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
-        <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: 8, color: '#e2e8f0', fontSize: 12 }} />
-        <Line type="monotone" dataKey="count" stroke="#1E3A8A" strokeWidth={2.5} dot={{ fill: '#1E3A8A', r: 3 }} activeDot={{ r: 5 }} name="Attendance" />
+        <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e4e4e7', borderRadius: 12, color: '#18181b', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} />
+        <Line type="monotone" dataKey="count" stroke="#4F46E5" strokeWidth={2.5} dot={{ fill: '#4F46E5', r: 3 }} activeDot={{ r: 5 }} name="Attendance" />
       </LineChart>
     </ResponsiveContainer>
   )};
@@ -29,7 +29,7 @@ const LazyLineChart = dynamic(() => import('recharts').then(m => {
 
 const LazyPieChart = dynamic(() => import('recharts').then(m => {
   const { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } = m;
-  const COLORS = ['#1E3A8A', '#10B981', '#F59E0B', '#EF4444'];
+  const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444'];
   // eslint-disable-next-line react/display-name
   return { default: ({ data }: { data: { name: string; value: number }[] }) => (
     <ResponsiveContainer width="100%" height={200}>
@@ -37,8 +37,8 @@ const LazyPieChart = dynamic(() => import('recharts').then(m => {
         <Pie data={data} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={4} dataKey="value">
           {data.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
         </Pie>
-        <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: 8, color: '#e2e8f0', fontSize: 12 }} />
-        <Legend formatter={(v) => <span className="text-xs text-slate-500">{v}</span>} />
+        <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e4e4e7', borderRadius: 12, color: '#18181b', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} />
+        <Legend formatter={(v) => <span className="text-xs text-zinc-500">{v}</span>} />
       </PieChart>
     </ResponsiveContainer>
   )};
@@ -178,7 +178,7 @@ export default function DashboardPage() {
       value: kpis.totalEmployees,
       icon: Users,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      bgColor: 'bg-indigo-50',
       change: `${kpis.activeEmployees} active`,
     },
     {
@@ -186,7 +186,7 @@ export default function DashboardPage() {
       value: kpis.todayAttendance,
       icon: CalendarCheck,
       color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+      bgColor: 'bg-emerald-50',
       change: 'units marked today',
     },
     {
@@ -194,7 +194,7 @@ export default function DashboardPage() {
       value: kpis.monthlyAttendance,
       icon: TrendingUp,
       color: 'text-amber-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+      bgColor: 'bg-amber-50',
       change: 'this month total',
     },
     {
@@ -202,7 +202,7 @@ export default function DashboardPage() {
       value: formatCurrency(kpis.totalSalaryLiability),
       icon: IndianRupee,
       color: 'text-rose-600',
-      bgColor: 'bg-rose-50 dark:bg-rose-900/20',
+      bgColor: 'bg-rose-50',
       change: 'net payable this month',
     },
   ];
@@ -227,29 +227,29 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-0.5">
+        <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Dashboard</h1>
+        <p className="text-zinc-500 text-sm mt-1">
           Welcome back! Here's what's happening at the factory today.
         </p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {kpiCards.map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md transition-shadow"
+            className="glass-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{kpi.label}</p>
-                <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">{kpi.value}</p>
-                <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                  <ArrowUpRight className="w-3 h-3" />
+                <p className="text-sm font-medium text-zinc-500">{kpi.label}</p>
+                <p className="text-3xl font-bold text-zinc-900 mt-1.5 tracking-tight">{kpi.value}</p>
+                <p className="text-xs font-medium text-zinc-400 mt-2 flex items-center gap-1.5">
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                   {kpi.change}
                 </p>
               </div>
-              <div className={`p-2.5 rounded-xl ${kpi.bgColor}`}>
+              <div className={`p-3 rounded-2xl ${kpi.bgColor} shadow-inner`}>
                 <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
               </div>
             </div>
@@ -260,16 +260,16 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Attendance Trend */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-          <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4">
+        <div className="lg:col-span-2 glass-card rounded-2xl p-6">
+          <h2 className="text-base font-bold text-zinc-900 mb-6">
             Attendance Trend (Last 14 Days)
           </h2>
           <LazyLineChart data={attendanceTrend} />
         </div>
 
         {/* Employee Status Pie */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-          <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4">
+        <div className="glass-card rounded-2xl p-6">
+          <h2 className="text-base font-bold text-zinc-900 mb-6">
             Employee Status
           </h2>
           <LazyPieChart data={employeeStatus} />
@@ -279,32 +279,34 @@ export default function DashboardPage() {
       {/* Activity Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Attendance */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <CalendarCheck className="w-4 h-4 text-emerald-500" />
-            <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">
+        <div className="glass-card rounded-2xl p-6">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <CalendarCheck className="w-4 h-4 text-emerald-600" />
+            </div>
+            <h2 className="text-base font-bold text-zinc-900">
               Recent Attendance
             </h2>
           </div>
           {recentAttendance.length === 0 ? (
-            <div className="text-center py-8 text-slate-400 text-sm">No attendance records yet</div>
+            <div className="text-center py-10 text-zinc-400 text-sm">No attendance records yet</div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {recentAttendance.map((rec) => (
                 <div
                   key={rec.id}
-                  className="flex items-center gap-3 py-2 border-b border-slate-50 dark:border-slate-800 last:border-0"
+                  className="flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-sm font-bold shrink-0">
                     {rec.employee?.full_name?.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                    <p className="text-sm font-semibold text-zinc-800 truncate">
                       {rec.employee?.full_name}
                     </p>
                     <p className="text-xs text-slate-400">{formatDate(rec.attendance_date)}</p>
                   </div>
-                  <span className="text-xs font-semibold px-2 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
+                  <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
                     {rec.attendance_count} units
                   </span>
                 </div>
@@ -314,34 +316,41 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Advances */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertCircle className="w-4 h-4 text-amber-500" />
-            <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">
+        <div className="glass-card rounded-2xl p-6">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="p-2 bg-rose-100 rounded-lg">
+              <Wallet className="w-4 h-4 text-rose-600" />
+            </div>
+            <h2 className="text-base font-bold text-zinc-900">
               Recent Advances
             </h2>
           </div>
           {recentAdvances.length === 0 ? (
-            <div className="text-center py-8 text-slate-400 text-sm">No advance records yet</div>
+            <div className="text-center py-10 text-zinc-400 text-sm">No recent advances</div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {recentAdvances.map((adv) => (
                 <div
                   key={adv.id}
-                  className="flex items-center gap-3 py-2 border-b border-slate-50 dark:border-slate-800 last:border-0"
+                  className="flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-700 dark:text-amber-300 text-xs font-bold shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-700 text-sm font-bold shrink-0">
                     {adv.employee?.full_name?.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                    <p className="text-sm font-semibold text-zinc-900 truncate">
                       {adv.employee?.full_name}
                     </p>
-                    <p className="text-xs text-slate-400">{adv.reason || 'No reason'}</p>
+                    <p className="text-xs text-zinc-500 font-medium truncate">
+                      {new Date(adv.payment_date).toLocaleDateString()}
+                    </p>
                   </div>
-                  <span className="text-sm font-bold text-rose-600 dark:text-rose-400">
-                    {formatCurrency(adv.amount)}
-                  </span>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-zinc-900">
+                      {formatCurrency(adv.amount)}
+                    </p>
+                    <p className="text-xs font-semibold text-zinc-400">{adv.payment_mode}</p>
+                  </div>
                 </div>
               ))}
             </div>
