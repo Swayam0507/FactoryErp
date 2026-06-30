@@ -15,7 +15,8 @@ export function formatCurrency(amount: number): string {
 export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '—';
   try {
-    const d = new Date(dateStr + 'T00:00:00');
+    const d = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch {
     return dateStr;

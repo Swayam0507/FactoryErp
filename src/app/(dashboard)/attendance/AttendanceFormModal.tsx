@@ -30,13 +30,14 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<AttendanceFormValues>({
     resolver: zodResolver(attendanceSchema),
     defaultValues: {
       employee_id: editRecord?.employee_id || '',
       attendance_date: editRecord?.attendance_date || todayStr(),
-      attendance_count: editRecord?.attendance_count || 1,
+      attendance_count: editRecord ? editRecord.attendance_count : ('' as unknown as number),
       notes: editRecord?.notes || '',
     },
   });
@@ -161,6 +162,7 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
               <input
                 {...register('attendance_count', { valueAsNumber: true })}
                 type="number"
+                step="0.5"
                 min={0}
                 max={4}
                 className="w-24 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -171,12 +173,31 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
                   <div
                     key={n}
                     className={`w-7 h-7 rounded transition-all duration-200 ${
-                      n <= (count || 0)
+                      n <= Math.floor(count || 0)
                         ? 'bg-emerald-500 shadow-sm shadow-emerald-300'
                         : 'bg-slate-100 dark:bg-slate-800'
                     }`}
                   />
                 ))}
+                
+                {/* Half Day Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = count || 0;
+                    const fulls = Math.floor(current);
+                    const isHalf = current % 1 !== 0;
+                    setValue('attendance_count', isHalf ? fulls : fulls + 0.5, { shouldValidate: true });
+                  }}
+                  title="Half Day (+0.5)"
+                  className={`w-7 h-7 rounded transition-all duration-200 border-2 border-dashed flex items-center justify-center text-xs font-bold ${
+                    (count || 0) % 1 !== 0
+                      ? 'bg-amber-400 border-amber-400 text-amber-900 shadow-sm shadow-amber-200'
+                      : 'border-slate-300 dark:border-slate-600 text-slate-400 hover:border-amber-400'
+                  }`}
+                >
+                  ½
+                </button>
               </div>
             </div>
             {errors.attendance_count && <p className="text-xs text-red-500 mt-1">{errors.attendance_count.message}</p>}

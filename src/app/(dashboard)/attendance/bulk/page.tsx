@@ -152,21 +152,45 @@ export default function BulkAttendancePage() {
                         <div className="flex items-center justify-center gap-2">
                           {/* Quick buttons */}
                           <div className="flex items-center gap-1">
-                            {[0, 1, 2, 3, 4].map((n) => (
-                              <button
-                                key={n}
-                                onClick={() => setCount(emp.id, n)}
-                                className={`w-7 h-7 rounded text-xs font-bold transition ${
-                                  count === n
-                                    ? n === 0
-                                      ? 'bg-red-500 text-white'
-                                      : 'bg-emerald-500 text-white shadow-sm'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
-                                }`}
-                              >
-                                {n}
-                              </button>
-                            ))}
+                            {[0, 1, 2, 3, 4].map((n) => {
+                              const isSelected = count !== undefined && Math.floor(count) === n;
+                              return (
+                                <button
+                                  key={n}
+                                  onClick={() => {
+                                    const hasHalf = (count || 0) % 1 !== 0;
+                                    setCount(emp.id, n + (hasHalf ? 0.5 : 0));
+                                  }}
+                                  className={`w-7 h-7 rounded text-xs font-bold transition ${
+                                    isSelected
+                                      ? n === 0
+                                        ? 'bg-red-500 text-white'
+                                        : 'bg-emerald-500 text-white shadow-sm'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
+                                  }`}
+                                >
+                                  {n}
+                                </button>
+                              );
+                            })}
+                            
+                            {/* Half Day Button */}
+                            <button
+                              onClick={() => {
+                                const current = count || 0;
+                                const fulls = Math.floor(current);
+                                const isHalf = current % 1 !== 0;
+                                setCount(emp.id, isHalf ? fulls : fulls + 0.5);
+                              }}
+                              title="Half Day (+0.5)"
+                              className={`w-7 h-7 rounded border-2 border-dashed flex items-center justify-center text-xs font-bold transition-all ml-1 ${
+                                (count || 0) % 1 !== 0
+                                  ? 'bg-amber-400 border-amber-400 text-amber-900 shadow-sm'
+                                  : 'border-slate-300 dark:border-slate-600 text-slate-400 hover:border-amber-400'
+                              }`}
+                            >
+                              ½
+                            </button>
                           </div>
                         </div>
                       </td>

@@ -209,20 +209,20 @@ export default function ReportsPage() {
                         <>
                           <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-300">{((row.employee as Record<string,unknown>)?.full_name as string)}</td>
                           <td className="px-4 py-2.5 text-slate-500">{formatDate(row.payment_date as string)}</td>
-                          <td className="px-4 py-2.5 text-right font-bold text-emerald-600">{(row.payment_mode === 'CASH' || !row.payment_mode) ? formatCurrency(row.amount as number) : '—'}</td>
-                          <td className="px-4 py-2.5 text-right font-bold text-purple-600">{row.payment_mode === 'RTGS' ? formatCurrency(row.amount as number) : '—'}</td>
+                          <td className="px-4 py-2.5 text-right font-bold text-emerald-600 whitespace-nowrap">{(row.payment_mode === 'CASH' || !row.payment_mode) ? formatCurrency(row.amount as number) : '—'}</td>
+                          <td className="px-4 py-2.5 text-right font-bold text-purple-600 whitespace-nowrap">{row.payment_mode === 'RTGS' ? formatCurrency(row.amount as number) : '—'}</td>
                           <td className="px-4 py-2.5 text-slate-400 text-xs">{(row.reason as string) || '—'}</td>
                         </>
                       )}
                       {reportType === 'salary' && (
                         <>
                           <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-300">{((row.employee as Record<string,unknown>)?.full_name as string)}</td>
-                          <td className="px-4 py-2.5 text-right text-slate-600">{row.total_attendance as number}</td>
-                          <td className="px-4 py-2.5 text-right text-slate-500">{formatCurrency(row.rate as number)}</td>
-                          <td className="px-4 py-2.5 text-right text-slate-700">{formatCurrency(row.gross_salary as number)}</td>
-                          <td className="px-4 py-2.5 text-right text-rose-500">-{formatCurrency(row.advance_cash as number || 0)}</td>
-                          <td className="px-4 py-2.5 text-right text-rose-500">-{formatCurrency(row.advance_rtgs as number || 0)}</td>
-                          <td className="px-4 py-2.5 text-right font-bold text-emerald-600">{formatCurrency(row.final_salary as number)}</td>
+                          <td className="px-4 py-2.5 text-right text-slate-600 whitespace-nowrap">{row.total_attendance as number}</td>
+                          <td className="px-4 py-2.5 text-right text-slate-500 whitespace-nowrap">{formatCurrency(row.rate as number)}</td>
+                          <td className="px-4 py-2.5 text-right text-slate-700 whitespace-nowrap">{formatCurrency(row.gross_salary as number)}</td>
+                          <td className="px-4 py-2.5 text-right text-rose-500 whitespace-nowrap">-{formatCurrency(row.advance_cash as number || 0)}</td>
+                          <td className="px-4 py-2.5 text-right text-rose-500 whitespace-nowrap">-{formatCurrency(row.advance_rtgs as number || 0)}</td>
+                          <td className="px-4 py-2.5 text-right font-bold text-emerald-600 whitespace-nowrap">{formatCurrency(row.final_salary as number)}</td>
                         </>
                       )}
                     </tr>

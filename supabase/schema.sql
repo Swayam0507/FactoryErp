@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.attendance (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   employee_id       UUID NOT NULL REFERENCES public.employees(id) ON DELETE CASCADE,
   attendance_date   DATE NOT NULL,
-  attendance_count  SMALLINT NOT NULL DEFAULT 1 CHECK (attendance_count >= 0 AND attendance_count <= 4),
+  attendance_count  NUMERIC(3,1) NOT NULL DEFAULT 1 CHECK (attendance_count >= 0 AND attendance_count <= 4),
   notes             TEXT,
   created_by        UUID REFERENCES auth.users(id),
   created_at        TIMESTAMPTZ DEFAULT NOW(),
