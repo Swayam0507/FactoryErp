@@ -73,6 +73,13 @@ export default function EditEmployeePage() {
     setLoading(false);
   };
 
+  const onError = (errors: any) => {
+    const firstError = Object.values(errors)[0] as any;
+    if (firstError?.message) {
+      toast.error(firstError.message);
+    }
+  };
+
   if (fetchLoading) {
     return (
       <div className="max-w-2xl mx-auto space-y-4">
@@ -97,7 +104,7 @@ export default function EditEmployeePage() {
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Employee Code *</label>

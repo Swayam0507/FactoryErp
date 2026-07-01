@@ -36,7 +36,7 @@ export async function exportEmployeesToExcel(employees: Employee[]) {
 
 // ── Attendance Report Export ──────────────────────────────────
 export async function exportAttendanceToExcel(
-  records: (Attendance & { employee: Employee })[],
+  records: (Attendance & { employee: Employee; marked_by?: { name: string; role: string } | null })[],
   label = 'Attendance Report'
 ) {
   const XLSX = await getXLSX();
@@ -46,11 +46,12 @@ export async function exportAttendanceToExcel(
     'Employee Name': a.employee?.full_name || '',
     'Date': formatDate(a.attendance_date),
     'Attendance Count': a.attendance_count,
+    'Marked By': a.marked_by?.name || 'System',
     'Notes': a.notes || '',
   }));
 
   const ws = XLSX.utils.json_to_sheet(data);
-  ws['!cols'] = [{ wch: 4 }, { wch: 14 }, { wch: 25 }, { wch: 14 }, { wch: 18 }, { wch: 30 }];
+  ws['!cols'] = [{ wch: 4 }, { wch: 14 }, { wch: 25 }, { wch: 14 }, { wch: 18 }, { wch: 20 }, { wch: 30 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Attendance');
   downloadWorkbook(wb, `${label.replace(/ /g, '_')}.xlsx`);

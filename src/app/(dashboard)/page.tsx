@@ -8,6 +8,7 @@ import {
   Users, CalendarCheck, TrendingUp, IndianRupee,
   AlertCircle, ArrowUpRight, Wallet
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import type { Employee, Attendance, AdvancePayment } from '@/types';
 
 // Dynamically import recharts (heavy ~500KB library)
@@ -70,6 +71,7 @@ export default function DashboardPage() {
   const [recentAttendance, setRecentAttendance] = useState<(Attendance & { employee: Employee })[]>([]);
   const [recentAdvances, setRecentAdvances] = useState<(AdvancePayment & { employee: Employee })[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isSuperAdmin } = useAuth();
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -199,13 +201,16 @@ export default function DashboardPage() {
     },
     {
       label: 'Salary Liability',
-      value: formatCurrency(kpis.totalSalaryLiability),
+      value: formatCurrency(kpis.totalSalaryLiability, 0),
       icon: IndianRupee,
       color: 'text-rose-600',
       bgColor: 'bg-rose-50',
       change: 'net payable this month',
     },
   ];
+
+  // Admin (attendance manager) sees limited KPIs — no salary data
+  const visibleKpis = isSuperAdmin ? kpiCards : kpiCards.filter(k => k.label !== 'Salary Liability');
 
   if (loading) {
     return (
@@ -235,21 +240,21 @@ export default function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        {kpiCards.map((kpi) => (
+        {visibleKpis.map((kpi) => (
           <div
             key={kpi.label}
             className="glass-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
           >
-            <div className="flex items-start justify-between">
-              <div>
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-zinc-500">{kpi.label}</p>
-                <p className="text-3xl font-bold text-zinc-900 mt-1.5 tracking-tight">{kpi.value}</p>
+                <p className="text-2xl xl:text-3xl font-bold text-zinc-900 mt-1.5 tracking-tight break-words">{kpi.value}</p>
                 <p className="text-xs font-medium text-zinc-400 mt-2 flex items-center gap-1.5">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  {kpi.change}
+                  <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{kpi.change}</span>
                 </p>
               </div>
-              <div className={`p-3 rounded-2xl ${kpi.bgColor} shadow-inner`}>
+              <div className={`p-3 rounded-2xl ${kpi.bgColor} shadow-inner shrink-0 flex items-center justify-center`}>
                 <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
               </div>
             </div>
@@ -315,7 +320,8 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Recent Advances */}
+        {/* Recent Advances — super_admin only */}
+        {isSuperAdmin && (
         <div className="glass-card rounded-2xl p-6">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="p-2 bg-rose-100 rounded-lg">
@@ -356,6 +362,7 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );

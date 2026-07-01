@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { AdvancePayment, Employee } from '@/types';
+import { getMonthlyAttendance } from './useAttendance';
 
 type AdvanceWithEmployee = AdvancePayment & { employee: Employee };
 
@@ -53,6 +54,31 @@ export function useAdvances(filters: AdvanceFilters = {}) {
       .select()
       .single();
     if (err) throw new Error(err.message);
+    
+    // Check for High Advance Alert
+    try {
+      const pDate = new Date(payload.payment_date);
+      const m = pDate.getMonth() + 1;
+      const y = pDate.getFullYear();
+      
+      const { data: emp } = await supabase.from('employees').select('full_name, rate_per_attendance').eq('id', payload.employee_id).single();
+      if (emp) {
+        const totalAtt = await getMonthlyAttendance(payload.employee_id, m, y);
+        const { total } = await getMonthlyAdvances(payload.employee_id, m, y);
+        const earned = totalAtt * emp.rate_per_attendance;
+        if (total > earned) {
+          await supabase.from('notifications').insert({
+            type: 'warning',
+            title: 'High Advance Alert',
+            message: `${emp.full_name} has taken ₹${total} in advances this month, exceeding their earned salary of ₹${earned}.`,
+            target_role: 'super_admin'
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to check high advance alert', e);
+    }
+    
     await fetchAdvances();
     return data;
   };

@@ -37,7 +37,21 @@ export default function ReportsPage() {
       let q = supabase.from('attendance').select('*, employee:employees(*)').gte('attendance_date', dateFrom).lte('attendance_date', dateTo).order('attendance_date', { ascending: false });
       if (empFilter) q = q.eq('employee_id', empFilter);
       const { data: att } = await q;
-      setData(att || []);
+      const attData = (att as any[]) || [];
+      
+      const adminIds = Array.from(new Set(attData.map(r => r.created_by).filter(Boolean))) as string[];
+      if (adminIds.length > 0) {
+        const { data: admins } = await supabase.from('admins').select('id, name, role').in('id', adminIds);
+        if (admins) {
+          const adminMap = new Map(admins.map(a => [a.id, a]));
+          attData.forEach(r => {
+            if (r.created_by && adminMap.has(r.created_by)) {
+              r.marked_by = adminMap.get(r.created_by);
+            }
+          });
+        }
+      }
+      setData(attData);
     } else if (reportType === 'advance') {
       let q = supabase.from('advance_payments').select('*, employee:employees(*)').gte('payment_date', dateFrom).lte('payment_date', dateTo).order('payment_date', { ascending: false });
       if (empFilter) q = q.eq('employee_id', empFilter);
@@ -126,11 +140,17 @@ export default function ReportsPage() {
             <>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">From</label>
-                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="date" value={dateFrom} onChange={(e) => {
+                  if (e.target.value > dateTo) toast.error('From date cannot be later than To date');
+                  else setDateFrom(e.target.value);
+                }} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">To</label>
-                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="date" value={dateTo} onChange={(e) => {
+                  if (e.target.value < dateFrom) toast.error('To date cannot be earlier than From date');
+                  else setDateTo(e.target.value);
+                }} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </>
           )}
@@ -179,7 +199,7 @@ export default function ReportsPage() {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
                     {reportType === 'employee' && ['Code', 'Name', 'Mobile', 'Joining Date', 'Rate', 'Status'].map((h) => <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">{h}</th>)}
-                    {reportType === 'attendance' && ['Employee', 'Date', 'Count', 'Notes'].map((h) => <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">{h}</th>)}
+                    {reportType === 'attendance' && ['Employee', 'Date', 'Count', 'Marked By', 'Notes'].map((h) => <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">{h}</th>)}
                     {reportType === 'advance' && ['Employee', 'Date', 'Cash (₹)', 'RTGS (₹)', 'Reason'].map((h) => <th key={h} className={`px-4 py-3 font-semibold text-slate-600 dark:text-slate-400 ${h.includes('₹') ? 'text-right' : 'text-left'}`}>{h}</th>)}
                     {reportType === 'salary' && ['Employee', 'Attendance', 'Rate', 'Gross', 'Cash Adv.', 'RTGS Adv.', 'Final'].map((h) => <th key={h} className={`px-4 py-3 font-semibold text-slate-600 dark:text-slate-400 ${h !== 'Employee' ? 'text-right' : 'text-left'}`}>{h}</th>)}
                   </tr>
@@ -202,6 +222,7 @@ export default function ReportsPage() {
                           <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-300">{((row.employee as Record<string,unknown>)?.full_name as string)}</td>
                           <td className="px-4 py-2.5 text-slate-500">{formatDate(row.attendance_date as string)}</td>
                           <td className="px-4 py-2.5"><span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">{row.attendance_count as number}</span></td>
+                          <td className="px-4 py-2.5 text-slate-500 text-xs">{((row.marked_by as any)?.name as string) || 'System'}</td>
                           <td className="px-4 py-2.5 text-slate-400 text-xs">{(row.notes as string) || '—'}</td>
                         </>
                       )}

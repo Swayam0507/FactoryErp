@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Attendance, Employee } from '@/types';
 
-type AttendanceWithEmployee = Attendance & { employee: Employee };
+type AttendanceWithEmployee = Attendance & { employee: Employee; marked_by?: { name: string; role: string } | null };
 
 interface AttendanceFilters {
   employeeId?: string;
@@ -32,8 +32,27 @@ export function useAttendance(filters: AttendanceFilters = {}) {
     if (filters.to) query = query.lte('attendance_date', filters.to);
 
     const { data, error: err } = await query;
-    if (err) setError(err.message);
-    else setRecords((data as AttendanceWithEmployee[]) || []);
+    if (err) {
+      setError(err.message);
+    } else {
+      const attendanceData = (data as AttendanceWithEmployee[]) || [];
+      
+      // Manually fetch 'marked_by' admin details to avoid foreign key join issues
+      const adminIds = Array.from(new Set(attendanceData.map(r => r.created_by).filter(Boolean))) as string[];
+      if (adminIds.length > 0) {
+        const { data: admins } = await supabase.from('admins').select('id, name, role').in('id', adminIds);
+        if (admins) {
+          const adminMap = new Map(admins.map(a => [a.id, a]));
+          attendanceData.forEach(r => {
+            if (r.created_by && adminMap.has(r.created_by)) {
+              r.marked_by = adminMap.get(r.created_by);
+            }
+          });
+        }
+      }
+      
+      setRecords(attendanceData);
+    }
     setLoading(false);
   }, [supabase, filters.employeeId, filters.from, filters.to]);
 
@@ -59,6 +78,27 @@ export function useAttendance(filters: AttendanceFilters = {}) {
   };
 
   const deleteAttendance = async (id: string) => {
+    // Check role and fetch record details before delete
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: admin } = await supabase.from('admins').select('role, name').eq('id', user.id).single();
+        if (admin && admin.role === 'admin') {
+          const { data: record } = await supabase.from('attendance').select('*, employee:employees(full_name)').eq('id', id).single();
+          if (record && record.employee) {
+            await supabase.from('notifications').insert({
+              type: 'info',
+              title: 'Attendance Record Deleted',
+              message: `Manager ${admin.name} deleted the attendance record of ${record.employee.full_name} for date ${record.attendance_date}.`,
+              target_role: 'super_admin'
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to log delete attendance notification', e);
+    }
+
     const { error: err } = await supabase
       .from('attendance')
       .delete()

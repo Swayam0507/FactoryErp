@@ -168,27 +168,29 @@ CREATE POLICY "attendance_delete_admin" ON public.attendance
   FOR DELETE USING (public.get_my_role() IN ('super_admin', 'admin'));
 
 -- ---- advance_payments table policies ----
-CREATE POLICY "advances_select_all_auth" ON public.advance_payments
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- admin (attendance manager) cannot view/manage advances
+CREATE POLICY "advances_select_super" ON public.advance_payments
+  FOR SELECT USING (public.get_my_role() IN ('super_admin', 'viewer'));
 
-CREATE POLICY "advances_insert_admin" ON public.advance_payments
-  FOR INSERT WITH CHECK (public.get_my_role() IN ('super_admin', 'admin'));
+CREATE POLICY "advances_insert_super" ON public.advance_payments
+  FOR INSERT WITH CHECK (public.get_my_role() = 'super_admin');
 
-CREATE POLICY "advances_update_admin" ON public.advance_payments
-  FOR UPDATE USING (public.get_my_role() IN ('super_admin', 'admin'));
+CREATE POLICY "advances_update_super" ON public.advance_payments
+  FOR UPDATE USING (public.get_my_role() = 'super_admin');
 
-CREATE POLICY "advances_delete_admin" ON public.advance_payments
-  FOR DELETE USING (public.get_my_role() IN ('super_admin', 'admin'));
+CREATE POLICY "advances_delete_super" ON public.advance_payments
+  FOR DELETE USING (public.get_my_role() = 'super_admin');
 
 -- ---- salary_reports table policies ----
-CREATE POLICY "salary_select_all_auth" ON public.salary_reports
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- admin (attendance manager) cannot view salary reports
+CREATE POLICY "salary_select_super" ON public.salary_reports
+  FOR SELECT USING (public.get_my_role() IN ('super_admin', 'viewer'));
 
-CREATE POLICY "salary_insert_admin" ON public.salary_reports
-  FOR INSERT WITH CHECK (public.get_my_role() IN ('super_admin', 'admin'));
+CREATE POLICY "salary_insert_super" ON public.salary_reports
+  FOR INSERT WITH CHECK (public.get_my_role() = 'super_admin');
 
-CREATE POLICY "salary_update_admin" ON public.salary_reports
-  FOR UPDATE USING (public.get_my_role() IN ('super_admin', 'admin'));
+CREATE POLICY "salary_update_super" ON public.salary_reports
+  FOR UPDATE USING (public.get_my_role() = 'super_admin');
 
 CREATE POLICY "salary_delete_super" ON public.salary_reports
   FOR DELETE USING (public.get_my_role() = 'super_admin');

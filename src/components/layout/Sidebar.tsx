@@ -33,7 +33,7 @@ const navItems = [
     label: 'Employees',
     href: '/employees',
     icon: Users,
-    roles: ['super_admin', 'admin', 'viewer'],
+    roles: ['super_admin', 'viewer'],
   },
   {
     label: 'Attendance',
@@ -45,19 +45,19 @@ const navItems = [
     label: 'Advances',
     href: '/advances',
     icon: Wallet,
-    roles: ['super_admin', 'admin', 'viewer'],
+    roles: ['super_admin', 'viewer'],
   },
   {
     label: 'Salary',
     href: '/salary',
     icon: BarChart3,
-    roles: ['super_admin', 'admin', 'viewer'],
+    roles: ['super_admin'],
   },
   {
     label: 'Reports',
     href: '/reports',
     icon: BarChart3,
-    roles: ['super_admin', 'admin', 'viewer'],
+    roles: ['super_admin'],
   },
   {
     label: 'Admin Users',

@@ -17,6 +17,8 @@ import { exportAttendanceToExcel } from '@/lib/excel/exporters';
 import AttendanceFormModal from './AttendanceFormModal';
 import type { Attendance, Employee } from '@/types';
 
+type AttendanceRecord = Attendance & { employee: Employee; marked_by?: { name: string; role: string } | null };
+
 const PAGE_SIZE = 20;
 
 export default function AttendancePage() {
@@ -29,7 +31,7 @@ export default function AttendancePage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
-  const [editRecord, setEditRecord] = useState<(Attendance & { employee: Employee }) | null>(null);
+  const [editRecord, setEditRecord] = useState<AttendanceRecord | null>(null);
 
   const { records, loading, deleteAttendance, refetch } = useAttendance({
     from: dateFrom,
@@ -38,7 +40,7 @@ export default function AttendancePage() {
   });
 
   const { employees } = useEmployees(false);
-  const { canWrite } = useAuth();
+  const { canWrite, isSuperAdmin } = useAuth();
   const { sendNotification } = useWhatsApp();
 
   const filtered = useMemo(() => {
@@ -156,15 +158,21 @@ export default function AttendancePage() {
         <input
           type="date"
           value={dateFrom}
-          onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-          className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            if (e.target.value > dateTo) toast.error('From date cannot be later than To date');
+            else { setDateFrom(e.target.value); setPage(1); }
+          }}
+          className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <span className="self-center text-slate-400 text-sm">to</span>
         <input
           type="date"
           value={dateTo}
-          onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-          className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            if (e.target.value < dateFrom) toast.error('To date cannot be earlier than From date');
+            else { setDateTo(e.target.value); setPage(1); }
+          }}
+          className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -179,6 +187,7 @@ export default function AttendancePage() {
                 <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">Date</th>
                 <th className="text-center px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">Count</th>
                 <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden md:table-cell">Notes</th>
+                {isSuperAdmin && <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">Marked By</th>}
                 {canWrite && <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-400">Actions</th>}
               </tr>
             </thead>
@@ -216,6 +225,22 @@ export default function AttendancePage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">{rec.notes || '—'}</td>
+                    {isSuperAdmin && (
+                      <td className="px-4 py-3">
+                        {(rec as AttendanceRecord).marked_by ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                              {(rec as AttendanceRecord).marked_by!.name}
+                            </span>
+                            {(rec as AttendanceRecord).marked_by!.role === 'admin' && (
+                              <span className="text-xs px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded font-medium">Manager</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs">—</span>
+                        )}
+                      </td>
+                    )}
                     {canWrite && (
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">

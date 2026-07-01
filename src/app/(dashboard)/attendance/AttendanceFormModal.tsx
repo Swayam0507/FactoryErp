@@ -10,7 +10,7 @@ import { useAttendance } from '@/hooks/useAttendance';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { todayStr, getCurrentMonthYear, getMonthRange } from '@/lib/utils';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Search } from 'lucide-react';
 import type { Attendance, Employee } from '@/types';
 
 interface Props {
@@ -25,6 +25,12 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
   const { sendNotification } = useWhatsApp();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredEmployees = employees.filter(e => 
+    e.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    e.employee_code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     register,
@@ -109,6 +115,12 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
     setLoading(false);
   };
 
+  const onError = (errors: any) => {
+    if (errors.attendance_count) {
+      toast.error(errors.attendance_count.message || 'Invalid attendance count');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
@@ -122,21 +134,35 @@ export default function AttendanceFormModal({ editRecord, employees, onClose, on
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit, onError)} className="p-6 space-y-4">
           {/* Employee */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Employee <span className="text-red-500">*</span>
             </label>
-            <select
-              {...register('employee_id')}
-              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select employee…</option>
-              {employees.map((e) => (
-                <option key={e.id} value={e.id}>{e.employee_code} — {e.full_name}</option>
-              ))}
-            </select>
+            <div className="space-y-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search employee by name or code..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <select
+                {...register('employee_id')}
+                size={editRecord ? 1 : (filteredEmployees.length > 5 ? 5 : undefined)}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {!editRecord && <option value="">Select employee…</option>}
+                {editRecord && <option value={editRecord.employee_id}>{editRecord.employee.employee_code} — {editRecord.employee.full_name}</option>}
+                {filteredEmployees.map((e) => (
+                  <option key={e.id} value={e.id}>{e.employee_code} — {e.full_name}</option>
+                ))}
+              </select>
+            </div>
             {errors.employee_id && <p className="text-xs text-red-500 mt-1">{errors.employee_id.message}</p>}
           </div>
 

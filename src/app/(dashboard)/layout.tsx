@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
@@ -12,14 +12,28 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Admin role is attendance-only — block direct URL access to restricted pages
+  const ADMIN_BLOCKED_PREFIXES = ['/salary', '/reports', '/advances', '/employees', '/settings', '/admins'];
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!loading && isAdmin) {
+      const isBlocked = ADMIN_BLOCKED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+      if (isBlocked) {
+        router.replace('/attendance');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, loading, pathname]);
 
   if (loading || !user) {
     return (

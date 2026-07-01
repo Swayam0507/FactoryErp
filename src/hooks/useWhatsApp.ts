@@ -85,14 +85,26 @@ export function useWhatsApp() {
       } else {
         if (showToast) toast.info(`Meta API failed, falling back to Click-to-Chat...`);
         openClickToChat(payload);
+        await supabase.from('notifications').insert({
+          type: 'alert',
+          title: 'WhatsApp Delivery Failed',
+          message: `Could not send message to ${payload.employeeName}. Fell back to manual click-to-chat.`,
+          target_role: 'all'
+        });
         return true;
       }
     } catch {
       if (showToast) toast.info('WhatsApp send failed, falling back to Click-to-Chat...');
       openClickToChat(payload);
+      await supabase.from('notifications').insert({
+        type: 'alert',
+        title: 'WhatsApp Delivery Failed',
+        message: `Network error sending message to ${payload.employeeName}. Fell back to manual click-to-chat.`,
+        target_role: 'all'
+      });
       return true;
     }
-  }, [enabled, openClickToChat]);
+  }, [enabled, openClickToChat, supabase]);
 
   return { enabled, loaded, sendNotification, openClickToChat };
 }

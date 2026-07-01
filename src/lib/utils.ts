@@ -3,11 +3,12 @@
 // ──────────────────────────────────────────────────────────────
 
 // Format currency in INR
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number, decimals: number = 2): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-    maximumFractionDigits: 2,
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: decimals,
   }).format(amount);
 }
 

@@ -68,6 +68,7 @@ export function useAuth() {
 
   const canWrite = state.role === 'super_admin' || state.role === 'admin';
   const isSuperAdmin = state.role === 'super_admin';
+  const isAdmin = state.role === 'admin';
 
-  return { ...state, signOut, canWrite, isSuperAdmin };
+  return { ...state, signOut, canWrite, isSuperAdmin, isAdmin };
 }

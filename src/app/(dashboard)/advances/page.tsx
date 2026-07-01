@@ -141,9 +141,15 @@ export default function AdvancesPage() {
           <option value="">All Employees</option>
           {employees.map((e) => <option key={e.id} value={e.id}>{e.full_name}</option>)}
         </select>
-        <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1); }} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="date" value={dateFrom} onChange={(e) => {
+          if (e.target.value > dateTo) toast.error('From date cannot be later than To date');
+          else { setDateFrom(e.target.value); setPage(1); }
+        }} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         <span className="self-center text-slate-400 text-sm">to</span>
-        <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1); }} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="date" value={dateTo} onChange={(e) => {
+          if (e.target.value < dateFrom) toast.error('To date cannot be earlier than From date');
+          else { setDateTo(e.target.value); setPage(1); }
+        }} className="border border-slate-200 dark:border-slate-700 rounded-lg text-sm px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
 
       {/* Table */}
@@ -299,6 +305,13 @@ function AdvanceModal({ editRecord, employees, userId, onClose, onSuccess, addAd
     setLoading(false);
   };
 
+  const onError = (errors: any) => {
+    const firstError = Object.values(errors)[0] as any;
+    if (firstError?.message) {
+      toast.error(firstError.message);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
@@ -307,7 +320,7 @@ function AdvanceModal({ editRecord, employees, userId, onClose, onSuccess, addAd
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{editRecord ? 'Edit Advance' : 'Add Advance'}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"><X className="w-4 h-4" /></button>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit, onError)} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Employee *</label>
             <select {...register('employee_id')} disabled={!!editRecord} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60">

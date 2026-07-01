@@ -161,3 +161,16 @@ export interface SalaryFilters {
   year: number;
   employeeId: string | null;
 }
+
+export type NotificationType = 'alert' | 'warning' | 'info';
+export type NotificationTargetRole = 'super_admin' | 'admin' | 'all';
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  is_read: boolean;
+  target_role: NotificationTargetRole;
+  created_at: string;
+}
